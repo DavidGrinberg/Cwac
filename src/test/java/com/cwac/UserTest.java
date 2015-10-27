@@ -1,5 +1,6 @@
 package com.cwac;
 
+import com.cwac.mongoDocs.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.Document;
 import org.junit.Test;
@@ -18,10 +19,8 @@ public class UserTest {
         Random random = new Random();
         String name = RandomStringUtils.randomAlphabetic(random.nextInt(100)),
                 location = RandomStringUtils.randomAlphabetic(random.nextInt(100));
-        boolean isActive = Math.random() > 5;
         User user = new User(name,
                 new ArrayList<>(),
-                isActive,
                 location);
 
         return user;
@@ -32,7 +31,7 @@ public class UserTest {
         User user = createRandomUser();
 
         Document document = user;
-        assertEquals("Document ID is the user's kerb", document.getString("_id"), user.getKerberos());
+        assertEquals("Document ID is the user's kerb", document.getString("_id"), user.getUser());
     }
 
     @Test
@@ -58,6 +57,6 @@ public class UserTest {
     @Test
     public void testGetKerberos() throws Exception {
         User user = createRandomUser();
-        assertEquals("Kerberos is the ID", user.getKerberos(), user.getString("_id"));
+        assertEquals("Kerberos is the ID", user.getUser(), user.getString("_id"));
     }
 }
