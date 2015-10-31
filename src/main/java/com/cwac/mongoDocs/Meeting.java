@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
+ * Represents the meeting of multiple users (normally just 2) at a single date and location.
  */
-@Entity
+@Entity("Meetings")
 public class Meeting {
     @Id
     private ObjectId id;
