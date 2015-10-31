@@ -1,107 +1,83 @@
 package com.cwac.mongoDocs;
 
-import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by David on 10/24/2015.
+ * Created by David on 10/30/2015.
  */
-public class User extends Document {
-    public final static String
-            USERNAME = "_id",
-            HISTORY = "history",
-            IS_ACTIVE = "isActive",
-            LOCATION = "location";
+@Entity("Users")
+public class User {
+    @Id
+    private String username;
+    private String location;
+    private boolean isActive;
+    private List<ObjectId> history = new ArrayList<>();
+    @Transient
+    private boolean foundMeeting = false;
 
-    public User(String kerberos, List<ObjectId> history, String location){
-        this.append(USERNAME, kerberos)
-                .append(HISTORY, history)
-                .append(LOCATION, location)
-                .append(IS_ACTIVE, true);
+    public User(){}
+
+    public User(String username, String location, List<ObjectId> history) {
+        this.username = username;
+        this.location = location;
+        this.history = history;
+        this.isActive = true;
     }
 
-    public User(Document userDoc){
-        this(userDoc.getString(USERNAME), userDoc.get(HISTORY, ArrayList.class), userDoc.getString(LOCATION));
-        validateDoc(userDoc);
+    public User(String username, String location){
+        this(username, location, new ArrayList<>());
     }
 
-    private void validateDoc(Document userDoc){
-        if( userDoc.containsKey(USERNAME) &&
-            userDoc.containsKey(HISTORY) &&
-            userDoc.containsKey(IS_ACTIVE) &&
-            userDoc.containsKey(LOCATION)
-        ){
-        }
-        else {
-            throw new IllegalArgumentException("User Document is missing one of the following fields: _id, history, isActive, location: " + userDoc.toString());
-        }
+    public String getUsername() {
+        return username;
     }
 
-    public String getUsername(){
-        return this.getString(USERNAME);
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setUser(String user){
-        this.append(USERNAME, user);
+    public boolean hasFoundMeeting() {
+        return foundMeeting;
     }
 
-    public List<ObjectId> getHistory(){
-        return this.get(HISTORY, ArrayList.class);
+    public void setFoundMeeting(boolean foundMeeting) {
+        this.foundMeeting = foundMeeting;
     }
 
-    public void setHistory(List<Meeting> history){
-        this.append(HISTORY, history);
+    public String getLocation() {
+        return location;
     }
 
-    public boolean getIsActive(){
-        return this.getBoolean(IS_ACTIVE);
+    public void setLocation(String location) {
+        this.location = location;
     }
 
-    public void setIsActive(boolean isActive){
-        this.append(IS_ACTIVE, isActive);
+    public boolean isActive() {
+        return isActive;
     }
 
-    public String getLocation(){
-        return this.getString(LOCATION);
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
-    public void setLocation(String location){
-        this.append(LOCATION, location);
+    public List<ObjectId> getHistory() {
+        return history;
+    }
+
+    public void setHistory(List<ObjectId> history) {
+        this.history = history;
     }
 
     public void addToHistory(Meeting meeting){
-       List<ObjectId> history = this.getHistory();
-        history.add(meeting.getObjectId(Meeting.ID));
-        this.append(HISTORY, history);
+        this.history.add(meeting.getId());
     }
 
-    public boolean hasMet(User otherUser){
-        List<ObjectId>  usersIveMet = this.getHistory(),
-                        usersTheyMet = otherUser.getHistory();
-        return !Collections.disjoint(usersIveMet, usersTheyMet);
+    public boolean hasMet(User secondUser) {
+        return !Collections.disjoint(this.getHistory(), secondUser.getHistory());
     }
-
-    /*
-    public boolean hasMet(User otherUser, MongoCollection<Document> meetingCollection){
-        List<String> usersIveMet = this.getUsersMet(meetingCollection),
-                     usersTheyMet = otherUser.getUsersMet(meetingCollection);
-        return !Collections.disjoint(usersIveMet, usersTheyMet);
-    }
-
-    private List<String> getUsersMet(MongoCollection<Document> meetingCollection) {
-        List<ObjectId> usersHistory = this.getHistory();
-        Bson usersMeetingIds = Filters.in(Meeting.ID, usersHistory);
-        List<Document> userMeetings = meetingCollection.find(usersMeetingIds).into(new ArrayList<>());
-        List<String> usersMet = userMeetings.stream()
-                .map(meeting -> ((Meeting)meeting).getUsers())
-                .flatMap(Collection::stream)
-                .filter(u -> !u.equals(this.getUsername()))
-                .collect(Collectors.toList());
-        return usersMet;
-    }
-    */
 }

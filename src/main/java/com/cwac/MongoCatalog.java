@@ -11,7 +11,7 @@ public class MongoCatalog {
     public static final class Collections{
         public static final String
             USERS = "users",
-            FAILED_PAIRING_ATTEMPS = "failedPairingAttempts",
+            FAILED_PAIRING_ATTEMPTS = "failedPairingAttempts",
             MEETINGS = "meetings";
     }
 }

@@ -22,8 +22,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="Cwac" />
         <module name="m101j" />
+      </profile>
+      <profile default="false" name="Annotation profile for Cwac" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="Cwac" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">

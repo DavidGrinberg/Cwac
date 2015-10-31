@@ -1,73 +1,70 @@
 package com.cwac.mongoDocs;
 
-import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
-import java.util.*;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
  */
-public class Meeting extends Document{
-    public final static String
-        ID = "_id",
-        FIRST_USER = "firstUser",
-        SECOND_USER = "secondUser",
-        LOCATION = "location",
-        DATE = "date",
-        OCCURED = "occured";
+@Entity
+public class Meeting {
+    @Id
+    private ObjectId id;
+    private List<String> attendees;
+    private String location;
+    private boolean occurred;
+    private Date creationDate;
 
-    public Meeting(String firstUser, String secondUser, String location){
-        this.append("_id", new ObjectId())
-                .append(FIRST_USER, firstUser)
-                .append(SECOND_USER, secondUser)
-                .append(LOCATION, location)
-                .append(DATE, new Date())
-                .append(OCCURED, true);
-    }
-    public String getFirstUser(){
-        return this.getString(FIRST_USER);
+    public Meeting(List<User> attendees, String location) {
+        this.id = new ObjectId();
+        this.attendees = extractUsernamesFromAtendees(attendees);
+        this.location = location;
+        this.occurred = true;
+        this.creationDate = new Date();
+        updateAttendees(attendees);
     }
 
-    public void setFirstUser(String firstUser){
-        this.append(FIRST_USER, firstUser);
+    private void updateAttendees(List<User> attendees) {
+        attendees.parallelStream().forEach(attendee ->{
+            attendee.addToHistory(this);
+            attendee.setFoundMeeting(true);
+        });
     }
 
-    public String getSecondUser(){
-        return this.getString(SECOND_USER);
+    private List<String> extractUsernamesFromAtendees(List<User> attendees){
+        return attendees.parallelStream().map(User::getUsername).collect(Collectors.toList());
     }
 
-    public void setSecondUser(String secondUser){
-        this.append(SECOND_USER, secondUser);
+    public List<String> getAttendeesUsernames() {
+        return attendees;
+    }
+
+    public void setAttendees(List<User> attendees) {
+        this.attendees = extractUsernamesFromAtendees(attendees);
+    }
+
+    public boolean isOccurred() {
+        return occurred;
+    }
+
+    public void setOccurred(boolean occurred) {
+        this.occurred = occurred;
+    }
+
+    public ObjectId getId() {
+        return id;
     }
 
     public String getLocation() {
-        return this.getString(LOCATION);
+        return location;
     }
 
-    public void setLocation(String location){
-        this.append(LOCATION, location);
-    }
-
-    public Date getDate() {
-        return this.getDate(DATE);
-    }
-
-    public void setDate(Date date){
-        this.append(DATE, date);
-    }
-
-    public boolean getOccured() {
-        return this.getBoolean(OCCURED);
-    }
-
-    public void setOccured(boolean occured){
-        this.append(OCCURED, occured);
-    }
-
-    public List<String> getUsers(){
-        return Arrays.asList(this.getFirstUser(), this.getSecondUser());
+    public Date getCreationDate() {
+        return creationDate;
     }
 }

@@ -1,57 +1,34 @@
 package com.cwac.poc;
 
-import com.cwac.codec.CwacCodecProvider;
+import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.DeleteResult;
-import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
-import java.util.ArrayList;
-
-import static com.mongodb.client.model.Filters.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by David on 10/24/2015.
  */
 public class test {
     public static void main(String[] args) {
-        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
-                CodecRegistries.fromProviders(new CwacCodecProvider()),
-                MongoClient.getDefaultCodecRegistry());
-        MongoClient mongoClient = new MongoClient();
+        final Morphia morphia = new Morphia();
 
-        MongoDatabase cwacDatabase = mongoClient.getDatabase("cwac");
-        MongoCollection<User> userCollection = cwacDatabase.getCollection("users", User.class).withCodecRegistry(codecRegistry);
+        // tell morphia where to find your classes
+        // can be called multiple times with different packages or classes
+        morphia.mapPackage("com.cwac.mongoDocs");
 
-        Bson userFilter = eq("_id", "a");
-        DeleteResult deleteResult = userCollection.deleteOne(userFilter);
-        System.out.println("deleteResult = " + deleteResult);
+        // create the Datastore connecting to the database running on the default port on the local host
+        final Datastore datastore = morphia.createDatastore(new MongoClient(), "cwac");
+        datastore.getDB().dropDatabase();
+        User firstUser = new User("david2", "nyc"),
+            secondUser = new User("matt", "nyc");
+        List<User> users = Arrays.asList(firstUser, secondUser);
+        Meeting meeting = new Meeting(users, "nyc" );
 
-        User user = new User("a", new ArrayList<>(),"as");
-        userCollection.insertOne(user);
-        System.out.println("Inserted user");
-
-        Document foundUser = userCollection.find(userFilter).first();
-        System.out.println("foundUser normal = " + foundUser);
-
-        user.append("test", "hi");
-        userCollection.replaceOne(userFilter, user);
-
-        foundUser = userCollection.find(userFilter).first();
-        System.out.println("foundUser after appending = " + foundUser);
-
-        user.remove("location");
-        userCollection.replaceOne(userFilter, user);
-
-        foundUser = userCollection.find(userFilter).first();
-        System.out.println("foundUser after removing = " + foundUser);
-
-        deleteResult = userCollection.deleteOne(userFilter);
-        System.out.println("deleteResult = " + deleteResult);
+        datastore.save(users);
+        datastore.save(meeting);
     }
 }
