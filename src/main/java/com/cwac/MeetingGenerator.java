@@ -2,7 +2,6 @@ package com.cwac;
 
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
-import org.bson.Document;
 import org.mongodb.morphia.Datastore;
 
 import java.util.*;
@@ -11,9 +10,9 @@ import java.util.*;
  * Created by David on 10/24/2015.
  */
 public class MeetingGenerator {
-    public static MeetingGenerationAttempt generate(Datastore cwacDatabase) {
+    public static Attempt generate(Datastore cwacDatabase) {
         List<String> locations = cwacDatabase.getCollection(User.class).distinct("location");
-        MeetingGenerationAttempt attempt = attemptToFindPairs(locations, cwacDatabase);
+        Attempt attempt = attemptToFindPairs(locations, cwacDatabase);
 
         cwacDatabase.save(attempt.meetings);
         cwacDatabase.save(attempt.users);
@@ -21,22 +20,22 @@ public class MeetingGenerator {
         return attempt;
     }
 
-    private static MeetingGenerationAttempt attemptToFindPairs(List<String> locations, Datastore cwacDatabase) {
+    private static Attempt attemptToFindPairs(List<String> locations, Datastore cwacDatabase) {
         List<Meeting>   paired = new ArrayList<>();
         List<User>      unpaired = new ArrayList<>();
 
         for(String location : locations){
-            MeetingGenerationAttempt attempt = attemptToFindPairsAtLocation(location, cwacDatabase);
+            Attempt attempt = attemptToFindPairsAtLocation(location, cwacDatabase);
             System.out.println("Completed location " + location);
             paired.addAll(attempt.meetings);
             unpaired.addAll(attempt.users);
         }
 
         //Can probably save to database here to reduce memory footprint, but not needed for now
-        return new MeetingGenerationAttempt(paired, unpaired);
+        return new Attempt(paired, unpaired);
     }
 
-    private static MeetingGenerationAttempt attemptToFindPairsAtLocation(String location, Datastore cwacDatabase) {
+    private static Attempt attemptToFindPairsAtLocation(String location, Datastore cwacDatabase) {
         List<User> activeUsersAtLocation = cwacDatabase.find(User.class).field("location").equal(location).field("isActive").equal(true).asList();
         List<Meeting> pairings = new ArrayList<>(activeUsersAtLocation.size() / 2);
         Collections.shuffle(activeUsersAtLocation);
@@ -61,14 +60,14 @@ public class MeetingGenerator {
             }
         }
 
-        return new MeetingGenerationAttempt(pairings, activeUsersAtLocation);
+        return new Attempt(pairings, activeUsersAtLocation);
     }
 
-    private static class MeetingGenerationAttempt {
-        final List<Meeting> meetings;
-        final List<User> users;
+    public static class Attempt {
+        public final List<Meeting> meetings;
+        public final List<User> users;
 
-        public MeetingGenerationAttempt(List<Meeting> meetings, List<User> users) {
+        public Attempt(List<Meeting> meetings, List<User> users) {
             this.meetings = meetings;
             this.users = users;
         }

@@ -20,6 +20,7 @@ public class User {
     @Transient
     private boolean foundMeeting = false;
 
+    //Should not be called, only used by Morphia for data translation
     public User(){}
 
     public User(String username, String location, List<ObjectId> history) {

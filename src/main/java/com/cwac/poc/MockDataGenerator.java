@@ -1,9 +1,9 @@
 package com.cwac.poc;
 
+import com.cwac.MeetingGenerator;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.mongodb.morphia.Datastore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,14 +16,14 @@ import java.util.stream.Stream;
  */
 public class MockDataGenerator {
     private static final int
-        NUM_LOCATIONS = 1,
-        NUM_USERS = 100,
-        NUM_HISTORY_EVENTS = 5,
+        NUM_LOCATIONS = 20,
+        NUM_USERS = 40000,
+        NUM_HISTORY_EVENTS = 50000,
         LOCATION_LENGTH = 3,
         USERNAME_LENGTH = 6;
-    private static final double DEACTIVATED_CHANCE = 0;
+    private static final double DEACTIVATED_CHANCE = .3;
 
-    public static void createDataInDb(Datastore datastore) {
+    public static MeetingGenerator.Attempt createData() {
         List<String> locations = Stream.generate(() -> RandomStringUtils.randomAlphabetic(LOCATION_LENGTH).toLowerCase())
                 .limit(NUM_LOCATIONS).collect(Collectors.toList());
         List<User> users= Stream.generate(() -> new User(RandomStringUtils.randomAlphabetic(USERNAME_LENGTH).toLowerCase(),
@@ -33,8 +33,8 @@ public class MockDataGenerator {
 
         List<Meeting> meetings = createRandomHistories(users, locations);
 
-        datastore.save(users);
-        datastore.save(meetings);
+        MeetingGenerator.Attempt attempt = new MeetingGenerator.Attempt(meetings, users);
+        return attempt;
     }
 
     private static List<Meeting> createRandomHistories(List<User> users, List<String> locations) {
