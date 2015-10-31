@@ -1,58 +1,52 @@
 package com.cwac.mongoDocs;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
  */
 public class User extends Document {
-    private final static String
-            USER = "_id",
+    public final static String
+            USERNAME = "_id",
             HISTORY = "history",
             IS_ACTIVE = "isActive",
             LOCATION = "location";
 
     public User(String kerberos, List<ObjectId> history, String location){
-        this.append(USER, kerberos)
+        this.append(USERNAME, kerberos)
                 .append(HISTORY, history)
                 .append(LOCATION, location)
                 .append(IS_ACTIVE, true);
     }
 
     public User(Document userDoc){
-        this(userDoc.getString(USER), userDoc.get(HISTORY, ArrayList.class), userDoc.getString(LOCATION));
+        this(userDoc.getString(USERNAME), userDoc.get(HISTORY, ArrayList.class), userDoc.getString(LOCATION));
         validateDoc(userDoc);
     }
 
     private void validateDoc(Document userDoc){
-        if( userDoc.containsKey(USER) &&
+        if( userDoc.containsKey(USERNAME) &&
             userDoc.containsKey(HISTORY) &&
             userDoc.containsKey(IS_ACTIVE) &&
             userDoc.containsKey(LOCATION)
         ){
-            return;
         }
         else {
             throw new IllegalArgumentException("User Document is missing one of the following fields: _id, history, isActive, location: " + userDoc.toString());
         }
     }
 
-    public String getUser(){
-        return this.getString(USER);
+    public String getUsername(){
+        return this.getString(USERNAME);
     }
 
     public void setUser(String user){
-        this.append(USER, user);
+        this.append(USERNAME, user);
     }
 
     public List<ObjectId> getHistory(){
@@ -105,7 +99,7 @@ public class User extends Document {
         List<String> usersMet = userMeetings.stream()
                 .map(meeting -> ((Meeting)meeting).getUsers())
                 .flatMap(Collection::stream)
-                .filter(u -> !u.equals(this.getUser()))
+                .filter(u -> !u.equals(this.getUsername()))
                 .collect(Collectors.toList());
         return usersMet;
     }
