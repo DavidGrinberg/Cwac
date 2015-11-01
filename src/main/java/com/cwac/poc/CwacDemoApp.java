@@ -3,6 +3,7 @@ package com.cwac.poc;
 import com.cwac.MeetingGenerator;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoClient;
+import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
@@ -15,7 +16,7 @@ public class CwacDemoApp {
     public static void main(String[] args) {
         final Morphia morphia = new Morphia();
         morphia.mapPackage("com.cwac.mongoDocs");
-        final Datastore cwacDb = morphia.createDatastore(new MongoClient(), "cwac");
+        final AdvancedDatastore cwacDb = (AdvancedDatastore) morphia.createDatastore(new MongoClient(), "cwac");
 
         boolean createdUsers = false;
         while(!createdUsers){
@@ -24,6 +25,7 @@ public class CwacDemoApp {
                 MeetingGenerator.Attempt attempt = MockDataGenerator.createData();
                 cwacDb.save(attempt.meetings);
                 cwacDb.save(attempt.users);
+                cwacDb.save("FailedUsedTest", attempt.users);
                 createdUsers = true;
                 System.out.println("Added users");
             } catch (MongoBulkWriteException e) {

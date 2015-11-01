@@ -13,12 +13,14 @@ import java.util.List;
 @Entity("Users")
 public class User {
     @Id
-    private String username;
-    private String location;
+    private String  username;
+    private String  location;
     private boolean isActive;
     private List<ObjectId> history = new ArrayList<>();
     @Transient
     private boolean foundMeeting = false;
+    @Transient
+    private String failureReason = "";
 
     //Should not be called, only used by Morphia for data translation
     public User(){}
@@ -75,10 +77,21 @@ public class User {
     }
 
     public void addToHistory(Meeting meeting){
+        if(!meeting.getAttendeesUsernames().contains(this.getUsername())){
+            throw new IllegalArgumentException("User must be attendee of meeting for meeting to be added to history");
+        }
         this.history.add(meeting.getId());
     }
 
     public boolean hasMet(User secondUser) {
         return !Collections.disjoint(this.getHistory(), secondUser.getHistory());
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }
