@@ -19,10 +19,8 @@ public class UserTest {
     public final ExpectedException expectedException = ExpectedException.none();
 
     private User createRandomUser(){
-        User user = new User(RandomStringUtils.randomAlphabetic(random.nextInt(10)),
+        return new User(RandomStringUtils.randomAlphabetic(random.nextInt(10)),
                             RandomStringUtils.randomAlphabetic(random.nextInt(10)));
-
-        return user;
     }
 
     @Test
@@ -75,5 +73,10 @@ public class UserTest {
         assertFalse(user3.hasMet(user1));
         assertFalse(user2.hasMet(user3));
         assertFalse(user3.hasMet(user2));
+    }
+
+    @Test
+    public void testDefaultConstructor(){
+        new User();
     }
 }
