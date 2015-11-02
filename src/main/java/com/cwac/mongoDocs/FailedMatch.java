@@ -16,12 +16,12 @@ import java.util.List;
 @Entity("FailedMatches")
 public class FailedMatch {
     @Id
-    private ObjectId id;
-    private String
+    private final ObjectId id;
+    private final String
             username,
             location,
             failureReason;
-    private Date failureDate;
+    private final Date failureDate;
 
     public FailedMatch(User user){
         this.id = new ObjectId();
@@ -35,39 +35,20 @@ public class FailedMatch {
         return id;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String getFailureReason() {
         return failureReason;
-    }
-
-    public void setFailureReason(String failureReason) {
-        this.failureReason = failureReason;
     }
 
     public Date getFailureDate() {
         return failureDate;
     }
 
-    public void setFailureDate(Date failureDate) {
-        this.failureDate = failureDate;
-    }
 }
