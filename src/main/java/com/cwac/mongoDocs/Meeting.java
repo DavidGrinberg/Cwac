@@ -3,6 +3,7 @@ package com.cwac.mongoDocs;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Version;
 
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,8 @@ public class Meeting {
     private String location;
     private boolean occurred;
     private Date creationDate;
+    @Version
+    long version;
 
     public Meeting(List<User> attendees, String location) {
         this.id = new ObjectId();
@@ -49,7 +52,7 @@ public class Meeting {
         this.attendees = extractUsernamesFromAtendees(attendees);
     }
 
-    public boolean isOccurred() {
+    public boolean hasOccurred() {
         return occurred;
     }
 
@@ -68,4 +71,6 @@ public class Meeting {
     public Date getCreationDate() {
         return creationDate;
     }
+
+
 }
