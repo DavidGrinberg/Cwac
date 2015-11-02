@@ -56,6 +56,14 @@ public class Meeting {
         this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
     }
 
+    public void addAttendee(User attendee){
+        this.attendeeUsernames.add(attendee.getUsername());
+    }
+
+    public void removeAttendee(User attendee){
+        this.attendeeUsernames.remove(attendee.getUsername());
+    }
+
     public boolean hasOccurred() {
         return occurred;
     }
@@ -75,6 +83,4 @@ public class Meeting {
     public Date getCreationDate() {
         return creationDate;
     }
-
-
 }
