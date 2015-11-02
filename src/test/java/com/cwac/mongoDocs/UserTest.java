@@ -32,6 +32,8 @@ public class UserTest {
         accessMethodRenaming.put("setUsername", null);
         accessMethodRenaming.put("setHistory", null);
         accessMethodRenaming.put("setVersion", null);
+        accessMethodRenaming.put("setLogger", null);
+        accessMethodRenaming.put("getLogger", null);
         Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
         nonInstantiableFieldsDefaultValues.put("java.util.List", new ArrayList<>());
 

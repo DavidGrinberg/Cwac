@@ -60,11 +60,11 @@ public class FieldAccessTester {
                                    Map<String, Object> nonInstantiableFieldsDefaultValues)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         for(Field field : fields){
-            Object expectedValue = newInstanceOfField(field, nonInstantiableFieldsDefaultValues);
             Method setter = getFieldAccessMethod(object.getClass(), SET, field, accessMethodRenaming);
             if(setter == null) {
                 continue;
             }
+            Object expectedValue = newInstanceOfField(field, nonInstantiableFieldsDefaultValues);
             setter.invoke(object, expectedValue);
             Object actualValue = getField(object, field);
             assertEquals(actualValue, expectedValue);

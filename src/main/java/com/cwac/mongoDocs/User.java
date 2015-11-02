@@ -2,6 +2,8 @@ package com.cwac.mongoDocs;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,13 +18,15 @@ public class User {
     private String  username;
     private String  location;
     private boolean isActive;
-    private List<ObjectId> history = new ArrayList<>();
+    private List<ObjectId> history;
     @Transient
     private boolean foundMeeting = false;
     @Transient
     private String failureReason = "";
     @Version
     long version;
+    @Transient
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     //Should not be called, only used by Morphia for data translation
     public User(){}
@@ -74,7 +78,14 @@ public class User {
         if(!meeting.getAttendeesUsernames().contains(this.getUsername())){
             throw new IllegalArgumentException("User must be attendee of meeting for meeting to be added to history");
         }
-        this.history.add(meeting.getId());
+
+        ObjectId meetingId = meeting.getId();
+        if(this.history.contains(meetingId)){
+            logger.warn("Attempting to add meeting {} to user {}'s history twice. Second add ignored.",
+                    meetingId, this.getUsername());
+            return;
+        }
+        this.history.add(meetingId);
     }
 
     public boolean hasMet(User secondUser) {

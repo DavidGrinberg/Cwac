@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Meeting {
     @Id
     private ObjectId id;
-    private List<String> attendees;
+    private List<String> attendeeUsernames;
     private String location;
     private boolean occurred;
     private Date creationDate;
@@ -26,7 +26,7 @@ public class Meeting {
 
     public Meeting(List<User> attendees, String location) {
         this.id = new ObjectId();
-        this.attendees = extractUsernamesFromAtendees(attendees);
+        this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
         this.location = location;
         this.occurred = true;
         this.creationDate = new Date();
@@ -45,11 +45,11 @@ public class Meeting {
     }
 
     public List<String> getAttendeesUsernames() {
-        return attendees;
+        return attendeeUsernames;
     }
 
     public void setAttendees(List<User> attendees) {
-        this.attendees = extractUsernamesFromAtendees(attendees);
+        this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
     }
 
     public boolean hasOccurred() {
