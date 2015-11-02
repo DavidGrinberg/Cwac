@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
  * You can also pass in an access method renaming map if an access method does not follow the standard getField format.
  * This is very common for boolean getters and setters which may instead use prefixes like is or has instead of get.
  * Additionally you can map a field access method to null indicating that it should not be auto-tested.
+ * You can also provide a mapping of overrides for fields that are non-instantiable (ie List -> ArrayList).
  */
 public class FieldAccessTester {
     private static final String GET = "get",
@@ -32,13 +33,19 @@ public class FieldAccessTester {
         accessMethodRenaming.put("setHistory", null);
         accessMethodRenaming.put("setVersion", null);
         Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
-        nonInstantiableFieldsDefaultValues.put("java.util.List", new ArrayList<>());
+        nonInstantiableFieldsDefaultValues.put(List.class.getTypeName(), new ArrayList<>());
 
         FieldAccessTester.testGettersAndSetters(user, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
     }
 
-    public static void testGettersAndSetters(Object object) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        testGettersAndSetters(object, new HashMap<>(), new HashMap<>());
+    public static void testGettersAndSetters(Object object)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        testGettersAndSetters(object, new HashMap<>());
+    }
+
+    private static void testGettersAndSetters(Object object, Map<String, String> accessMethodRenaming)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        testGettersAndSetters(object, accessMethodRenaming, new HashMap<>());
     }
 
     public static void testGettersAndSetters(Object object, Map<String, String> accessMethodRenaming,
@@ -79,7 +86,7 @@ public class FieldAccessTester {
 
     private static Object newInstanceOfField(Field field, Map<String, Object> nonInstantiableFieldsDefaultValues)
             throws IllegalAccessException, InstantiationException {
-        Object newInstance = null;
+        Object newInstance;
         Class<?> fieldType = field.getType();
         try{
             newInstance = fieldType.newInstance();
@@ -127,7 +134,7 @@ public class FieldAccessTester {
     }
 
     private static Object getField(Object object, Field field) throws IllegalAccessException {
-        Object returnVal = null;
+        Object returnVal;
         if(field.isAccessible()){
             returnVal = field.get(object);
         }
@@ -140,7 +147,7 @@ public class FieldAccessTester {
     }
 
     private static Method getFieldAccessMethod(Class clazz, String getOrSet, Field field, Map<String, String> accessMethodRenaming) throws NoSuchMethodException {
-        Method method = null;
+        Method method;
         String methodName = getOrSet + StringUtils.capitalize(field.getName());
         if(accessMethodRenaming.containsKey(methodName)){
             methodName = accessMethodRenaming.get(methodName);
