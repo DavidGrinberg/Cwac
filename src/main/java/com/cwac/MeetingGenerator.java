@@ -1,10 +1,12 @@
 package com.cwac;
 
+import com.cwac.mongoDocs.FailedMatch;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import org.mongodb.morphia.Datastore;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
@@ -66,10 +68,13 @@ public class MeetingGenerator {
     public static class Attempt {
         public final List<Meeting> meetings;
         public final List<User> users;
+        public final List<FailedMatch> failedUsers;
 
         public Attempt(List<Meeting> meetings, List<User> users) {
             this.meetings = meetings;
             this.users = users;
+            this.failedUsers = users.parallelStream().filter(user -> !user.hasFoundMeeting())
+                    .map(FailedMatch::new).collect(Collectors.toList());
         }
     }
 }
