@@ -56,7 +56,7 @@ public class MeetingGenerator {
                     continue;
                 }
 
-                Meeting meeting = new Meeting(Arrays.asList(firstUser,secondUser), location);
+                Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(firstUser,secondUser)), location);
                 pairings.add(meeting);
                 break;
             }

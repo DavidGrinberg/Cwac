@@ -7,6 +7,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,8 +34,7 @@ public class MockDataGenerator {
 
         List<Meeting> meetings = createRandomHistories(users, locations);
 
-        MeetingGenerator.Attempt attempt = new MeetingGenerator.Attempt(meetings, users);
-        return attempt;
+        return new MeetingGenerator.Attempt(meetings, users);
     }
 
     private static List<Meeting> createRandomHistories(List<User> users, List<String> locations) {
@@ -46,7 +46,7 @@ public class MockDataGenerator {
 
             User firstUser = users.get(userIndex1),
                     secondUser = users.get(userIndex2);
-            Meeting meeting = new Meeting(Arrays.asList(firstUser, secondUser),
+            Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(firstUser, secondUser)),
                     locations.get((int)(Math.random() * NUM_LOCATIONS)));
             meetings.add(meeting);
         }

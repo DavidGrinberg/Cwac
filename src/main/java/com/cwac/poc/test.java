@@ -7,7 +7,9 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by David on 10/24/2015.
@@ -25,7 +27,7 @@ public class test {
         datastore.getDB().dropDatabase();
         User firstUser = new User("david2", "nyc"),
             secondUser = new User("matt", "nyc");
-        List<User> users = Arrays.asList(firstUser, secondUser);
+        Set<User> users = new HashSet<>(Arrays.asList(firstUser, secondUser));
         Meeting meeting = new Meeting(users, "nyc" );
 
         datastore.save(users);

@@ -42,7 +42,7 @@ public class UserTest {
         User user = DataGenerator.createRandomUser();
         assertEquals(user.getHistory().size(), 0);
 
-        Meeting expectedMeeting = new Meeting(Arrays.asList(user), "testLocation");
+        Meeting expectedMeeting = new Meeting(new HashSet<>(Arrays.asList(user)), "testLocation");
         assertEquals(user.getHistory().size(), 1);
 
         ObjectId actualMeetingId = user.getHistory().get(0);
@@ -54,7 +54,7 @@ public class UserTest {
         User userInMeeting = DataGenerator.createRandomUser(),
              userNotInMeeting = DataGenerator.createRandomUser();
 
-        Meeting meeting = new Meeting(Arrays.asList(userInMeeting), "testLocation");
+        Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(userInMeeting)), "testLocation");
 
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("User must be attendee of meeting for meeting to be added to history");
@@ -66,7 +66,7 @@ public class UserTest {
     @Test
     public void testAddToHistoryShouldNotAllowAddingSameMeetingTwice(){
         User user = DataGenerator.createRandomUser();
-        Meeting meeting = new Meeting(Arrays.asList(user), "testLocation");
+        Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(user)), "testLocation");
         assertEquals(user.getHistory().size(), 1);
         assertEquals(user.getHistory().get(0), meeting.getId());
         user.addToHistory(meeting);
@@ -80,7 +80,7 @@ public class UserTest {
              user2 = DataGenerator.createRandomUser(),
              user3 = DataGenerator.createRandomUser();
 
-        new Meeting(Arrays.asList(user1, user2), "testLocation");
+        new Meeting(new HashSet<>(Arrays.asList(user1, user2)), "testLocation");
 
         //User 1 and 2 met each other
         assertTrue(user1.hasMet(user2));

@@ -7,6 +7,7 @@ import org.mongodb.morphia.annotations.Version;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class Meeting {
     @Id
     private ObjectId id;
-    private List<String> attendeeUsernames;
+    private Set<String> attendeeUsernames;
     private String location;
     private boolean occurred;
     private Date creationDate;
@@ -27,7 +28,7 @@ public class Meeting {
     //Used by Morphia, do not call
     public Meeting(){}
 
-    public Meeting(List<User> attendees, String location) {
+    public Meeting(Set<User> attendees, String location) {
         this.id = new ObjectId();
         this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
         this.location = location;
@@ -36,22 +37,22 @@ public class Meeting {
         updateAttendees(attendees);
     }
 
-    private void updateAttendees(List<User> attendees) {
+    private void updateAttendees(Set<User> attendees) {
         attendees.parallelStream().forEach(attendee ->{
             attendee.addToHistory(this);
             attendee.setFoundMeeting(true);
         });
     }
 
-    private List<String> extractUsernamesFromAtendees(List<User> attendees){
-        return attendees.parallelStream().map(User::getUsername).collect(Collectors.toList());
+    private Set<String> extractUsernamesFromAtendees(Set<User> attendees){
+        return attendees.parallelStream().map(User::getUsername).collect(Collectors.toSet());
     }
 
-    public List<String> getAttendeesUsernames() {
+    public Set<String> getAttendeesUsernames() {
         return attendeeUsernames;
     }
 
-    public void setAttendees(List<User> attendees) {
+    public void setAttendees(Set<User> attendees) {
         this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
     }
 
