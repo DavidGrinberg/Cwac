@@ -75,7 +75,7 @@ public class User {
     }
 
     public void addToHistory(Meeting meeting){
-        if(!meeting.getAttendeesUsernames().contains(this.getUsername())){
+        if(!meeting.getAttendeeUsernames().contains(this.getUsername())){
             throw new IllegalArgumentException("User must be attendee of meeting for meeting to be added to history");
         }
 

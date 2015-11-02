@@ -48,7 +48,7 @@ public class Meeting {
         return attendees.parallelStream().map(User::getUsername).collect(Collectors.toSet());
     }
 
-    public Set<String> getAttendeesUsernames() {
+    public Set<String> getAttendeeUsernames() {
         return attendeeUsernames;
     }
 
@@ -82,5 +82,9 @@ public class Meeting {
 
     public Date getCreationDate() {
         return creationDate;
+    }
+
+    public long getVersion() {
+        return version;
     }
 }
