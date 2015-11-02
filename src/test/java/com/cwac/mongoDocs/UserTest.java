@@ -1,5 +1,6 @@
 package com.cwac.mongoDocs;
 
+import com.cwac.testing.util.DataGenerator;
 import com.cwac.testing.util.FieldAccessTester;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
@@ -14,18 +15,12 @@ import static org.junit.Assert.*;
  * Created by David on 10/31/2015.
  */
 public class UserTest {
-    final Random random = new Random();
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    private User createRandomUser(){
-        return new User(RandomStringUtils.randomAlphabetic(random.nextInt(10)),
-                        RandomStringUtils.randomAlphabetic(random.nextInt(10)));
-    }
-
     @Test
     public void testGettersAndSetters() throws Exception{
-        User user = createRandomUser();
+        User user = DataGenerator.createRandomUser();
         Map<String, String> accessMethodRenaming = new HashMap<>();
         accessMethodRenaming.put("getIsActive", "isActive");
         accessMethodRenaming.put("getFoundMeeting", "hasFoundMeeting");
@@ -37,12 +32,14 @@ public class UserTest {
         Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
         nonInstantiableFieldsDefaultValues.put("java.util.List", new ArrayList<>());
 
-        FieldAccessTester.testGettersAndSetters(user, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
+        FieldAccessTester fieldAccessTester = new FieldAccessTester(user).setAccessMethodRenaming(accessMethodRenaming)
+                .setNonInstantiableFieldsDefaultValues(nonInstantiableFieldsDefaultValues);
+        fieldAccessTester.run();
     }
 
     @Test
     public void testAddToHistoryShouldTrackMeetingId() {
-        User user = createRandomUser();
+        User user = DataGenerator.createRandomUser();
         assertEquals(user.getHistory().size(), 0);
 
         Meeting expectedMeeting = new Meeting(Arrays.asList(user), "testLocation");
@@ -54,8 +51,8 @@ public class UserTest {
 
     @Test
     public void testAddToHistoryShouldThrowExceptionIfUserNotInMeeting(){
-        User userInMeeting = createRandomUser(),
-             userNotInMeeting = createRandomUser();
+        User userInMeeting = DataGenerator.createRandomUser(),
+             userNotInMeeting = DataGenerator.createRandomUser();
 
         Meeting meeting = new Meeting(Arrays.asList(userInMeeting), "testLocation");
 
@@ -67,16 +64,29 @@ public class UserTest {
     }
 
     @Test
+    public void testAddToHistoryShouldNotAllowAddingSameMeetingTwice(){
+        User user = DataGenerator.createRandomUser();
+        Meeting meeting = new Meeting(Arrays.asList(user), "testLocation");
+        assertEquals(user.getHistory().size(), 1);
+        assertEquals(user.getHistory().get(0), meeting.getId());
+        user.addToHistory(meeting);
+        assertEquals(user.getHistory().size(), 1);
+        assertEquals(user.getHistory().get(0), meeting.getId());
+    }
+
+    @Test
     public void testHasMet() throws Exception {
-        User user1 = createRandomUser(),
-             user2 = createRandomUser(),
-             user3 = createRandomUser();
+        User user1 = DataGenerator.createRandomUser(),
+             user2 = DataGenerator.createRandomUser(),
+             user3 = DataGenerator.createRandomUser();
 
         new Meeting(Arrays.asList(user1, user2), "testLocation");
 
+        //User 1 and 2 met each other
         assertTrue(user1.hasMet(user2));
         assertTrue(user2.hasMet(user1));
 
+        //No one was in a meeting with User 3
         assertFalse(user1.hasMet(user3));
         assertFalse(user3.hasMet(user1));
         assertFalse(user2.hasMet(user3));
