@@ -21,6 +21,8 @@ public class User {
     private boolean foundMeeting = false;
     @Transient
     private String failureReason = "";
+    @Version
+    long version;
 
     //Should not be called, only used by Morphia for data translation
     public User(){}
@@ -38,10 +40,6 @@ public class User {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public boolean hasFoundMeeting() {
@@ -72,10 +70,6 @@ public class User {
         return history;
     }
 
-    public void setHistory(List<ObjectId> history) {
-        this.history = history;
-    }
-
     public void addToHistory(Meeting meeting){
         if(!meeting.getAttendeesUsernames().contains(this.getUsername())){
             throw new IllegalArgumentException("User must be attendee of meeting for meeting to be added to history");
@@ -93,5 +87,9 @@ public class User {
 
     public void setFailureReason(String failureReason) {
         this.failureReason = failureReason;
+    }
+
+    public long getVersion() {
+        return version;
     }
 }

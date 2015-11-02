@@ -1,6 +1,6 @@
 package com.cwac.mongoDocs;
 
-import com.cwac.testing.util.GetterSetterReflectionTest;
+import com.cwac.testing.util.FieldAccessTester;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.junit.*;
@@ -20,7 +20,7 @@ public class UserTest {
 
     private User createRandomUser(){
         return new User(RandomStringUtils.randomAlphabetic(random.nextInt(10)),
-                            RandomStringUtils.randomAlphabetic(random.nextInt(10)));
+                        RandomStringUtils.randomAlphabetic(random.nextInt(10)));
     }
 
     @Test
@@ -29,7 +29,13 @@ public class UserTest {
         Map<String, String> accessMethodRenaming = new HashMap<>();
         accessMethodRenaming.put("getIsActive", "isActive");
         accessMethodRenaming.put("getFoundMeeting", "hasFoundMeeting");
-        GetterSetterReflectionTest.run(user, accessMethodRenaming);
+        accessMethodRenaming.put("setUsername", null);
+        accessMethodRenaming.put("setHistory", null);
+        accessMethodRenaming.put("setVersion", null);
+        Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
+        nonInstantiableFieldsDefaultValues.put("java.util.List", new ArrayList<>());
+
+        FieldAccessTester.testGettersAndSetters(user, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
     }
 
     @Test
