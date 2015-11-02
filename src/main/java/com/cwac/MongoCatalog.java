@@ -14,4 +14,9 @@ public class MongoCatalog {
             FAILED_PAIRING_ATTEMPTS = "failedPairingAttempts",
             MEETINGS = "meetings";
     }
+
+    public static final class Packages{
+        public static final String
+            CWAC_DOCS = "com.cwac.mongoDocs";
+    }
 }
