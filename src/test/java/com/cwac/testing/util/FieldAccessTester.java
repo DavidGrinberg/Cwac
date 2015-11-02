@@ -23,6 +23,11 @@ import static org.junit.Assert.assertEquals;
 public class FieldAccessTester {
     private static final String GET = "get",
                                 SET = "set";
+    private final Object objectToTest;
+    private Map<String, String> accessMethodRenaming = new HashMap<>();
+    private Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
+    private boolean testGetters = true,
+                    testSetters = true;
 
     public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         User user = new User("abc", "123");
@@ -34,29 +39,67 @@ public class FieldAccessTester {
         accessMethodRenaming.put("setVersion", null);
         Map<String, Object> nonInstantiableFieldsDefaultValues = new HashMap<>();
         nonInstantiableFieldsDefaultValues.put(List.class.getTypeName(), new ArrayList<>());
-
-        FieldAccessTester.testGettersAndSetters(user, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
+        FieldAccessTester fieldAccessTester = new FieldAccessTester(user).setAccessMethodRenaming(accessMethodRenaming)
+                .setNonInstantiableFieldsDefaultValues(nonInstantiableFieldsDefaultValues);
+        fieldAccessTester.run();
     }
 
-    public static void testGettersAndSetters(Object object)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        testGettersAndSetters(object, new HashMap<>());
+    public FieldAccessTester(Object objectToTest){
+        this.objectToTest = objectToTest;
     }
 
-    private static void testGettersAndSetters(Object object, Map<String, String> accessMethodRenaming)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        testGettersAndSetters(object, accessMethodRenaming, new HashMap<>());
+    public Object getObjectToTest() {
+        return objectToTest;
     }
 
-    public static void testGettersAndSetters(Object object, Map<String, String> accessMethodRenaming,
-                                             Map<String, Object> nonInstantiableFieldsDefaultValues)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        List<Field> fields = Arrays.asList(object.getClass().getDeclaredFields());
-        testGetters(object, fields, accessMethodRenaming);
-        testSetters(object, fields, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
+    public Map<String, String> getAccessMethodRenaming() {
+        return accessMethodRenaming;
     }
 
-    public static void testSetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming,
+    public FieldAccessTester setAccessMethodRenaming(Map<String, String> accessMethodRenaming) {
+        this.accessMethodRenaming = accessMethodRenaming;
+        return this;
+    }
+
+    public Map<String, Object> getNonInstantiableFieldsDefaultValues() {
+        return nonInstantiableFieldsDefaultValues;
+    }
+
+    public FieldAccessTester setNonInstantiableFieldsDefaultValues(Map<String, Object> nonInstantiableFieldsDefaultValues) {
+        this.nonInstantiableFieldsDefaultValues = nonInstantiableFieldsDefaultValues;
+        return this;
+    }
+
+    public boolean isTestGetters() {
+        return testGetters;
+    }
+
+    public FieldAccessTester setTestGetters(boolean testGetters) {
+        this.testGetters = testGetters;
+        return this;
+    }
+
+    public boolean isTestSetters() {
+        return testSetters;
+    }
+
+    public FieldAccessTester setTestSetters(boolean testSetters) {
+        this.testSetters = testSetters;
+        return this;
+    }
+
+    public FieldAccessTester run() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        List<Field> fields = Arrays.asList(objectToTest.getClass().getDeclaredFields());
+        if(testGetters){
+            testGetters(objectToTest, fields, accessMethodRenaming);
+        }
+        if(testSetters){
+            testSetters(objectToTest, fields, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
+        }
+        return this;
+    }
+
+   public static void testSetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming,
                                    Map<String, Object> nonInstantiableFieldsDefaultValues)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         for(Field field : fields){
