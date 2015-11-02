@@ -24,6 +24,9 @@ public class Meeting {
     @Version
     long version;
 
+    //Used by Morphia, do not call
+    public Meeting(){}
+
     public Meeting(List<User> attendees, String location) {
         this.id = new ObjectId();
         this.attendeeUsernames = extractUsernamesFromAtendees(attendees);
