@@ -1,15 +1,11 @@
 package com.cwac.poc;
 
-import com.cwac.MeetingGenerator;
+import com.cwac.meetings.ProposalGenerator;
 import com.cwac.MongoCatalog;
-import com.mongodb.Mongo;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.AdvancedDatastore;
-import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-
-import java.util.List;
 
 /**
  * Created by David on 10/25/2015.
@@ -24,10 +20,10 @@ public class CwacDemoApp {
         while(!createdUsers){
             try {
                 cwacDb.getDB().dropDatabase();
-                MeetingGenerator.Attempt attempt = MockDataGenerator.createData();
-                cwacDb.save(attempt.meetings);
-                cwacDb.save(attempt.users);
-                cwacDb.save("FailedUsedTest", attempt.users);
+                ProposalGenerator.Proposal proposal = MockDataGenerator.createData();
+                cwacDb.save(proposal.meetings);
+                cwacDb.save(proposal.users);
+                cwacDb.save("FailedUsedTest", proposal.users);
                 createdUsers = true;
                 System.out.println("Added users");
             } catch (MongoBulkWriteException e) {
@@ -35,7 +31,7 @@ public class CwacDemoApp {
             }
         }
 
-        MeetingGenerator.generate(cwacDb);
+        ProposalGenerator.generate(cwacDb);
         System.out.println("Done");
     }
 }
