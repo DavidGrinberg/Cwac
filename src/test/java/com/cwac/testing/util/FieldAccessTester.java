@@ -29,6 +29,10 @@ public class FieldAccessTester {
     private boolean testGetters = true,
                     testSetters = true;
 
+    public FieldAccessTester(Object objectToTest) {
+        this.objectToTest = objectToTest;
+    }
+
     public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         User user = new User("abc", "123");
         Map<String, String> accessMethodRenaming = new HashMap<>();
@@ -44,8 +48,115 @@ public class FieldAccessTester {
         fieldAccessTester.run();
     }
 
-    public FieldAccessTester(Object objectToTest){
-        this.objectToTest = objectToTest;
+    public static void testSetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming,
+                                   Map<String, Object> nonInstantiableFieldsDefaultValues)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        for (Field field : fields) {
+            Method setter = getFieldAccessMethod(object.getClass(), SET, field, accessMethodRenaming);
+            if (setter == null) {
+                continue;
+            }
+            Object expectedValue = newInstanceOfField(field, nonInstantiableFieldsDefaultValues);
+            setter.invoke(object, expectedValue);
+            Object actualValue = getField(object, field);
+            assertEquals(actualValue, expectedValue);
+        }
+    }
+
+    public static void testGetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        for (Field field : fields) {
+            Object ExpectedValue = getField(object, field);
+            Method getter = getFieldAccessMethod(object.getClass(), GET, field, accessMethodRenaming);
+            if (getter == null) {
+                continue;
+            }
+            Object actualValue = getter.invoke(object);
+            assertEquals(ExpectedValue, actualValue);
+        }
+    }
+
+    private static Object newInstanceOfField(Field field, Map<String, Object> nonInstantiableFieldsDefaultValues)
+            throws IllegalAccessException, InstantiationException {
+        Object newInstance;
+        Class<?> fieldType = field.getType();
+        try {
+            newInstance = fieldType.newInstance();
+        } catch (InstantiationException e) {
+            newInstance = attemptDefaultFieldValue(fieldType.getTypeName(), nonInstantiableFieldsDefaultValues);
+            if (newInstance == null) {
+                throw e;
+            }
+        }
+
+        return newInstance;
+    }
+
+    private static Object attemptDefaultFieldValue(String typeName, Map<String, Object> nonInstantiableFieldsDefaultValues) {
+        Object newInstance;
+        switch (typeName) {
+            case "boolean":
+                newInstance = false;
+                break;
+            case "byte":
+                newInstance = 0;
+                break;
+            case "char":
+                newInstance = '\u0000';
+                break;
+            case "double":
+                newInstance = 0.0d;
+                break;
+            case "float":
+                newInstance = 0.0f;
+                break;
+            case "int":
+                newInstance = 0;
+                break;
+            case "long":
+                newInstance = 0L;
+                break;
+            case "short":
+                newInstance = 0;
+                break;
+            default:
+                newInstance = nonInstantiableFieldsDefaultValues.get(typeName);
+        }
+        return newInstance;
+    }
+
+    private static Object getField(Object object, Field field) throws IllegalAccessException {
+        Object returnVal;
+        if (field.isAccessible()) {
+            returnVal = field.get(object);
+        } else {
+            field.setAccessible(true);
+            returnVal = field.get(object);
+            field.setAccessible(false);
+        }
+        return returnVal;
+    }
+
+    private static Method getFieldAccessMethod(Class clazz, String getOrSet, Field field, Map<String, String> accessMethodRenaming) throws NoSuchMethodException {
+        Method method;
+        String methodName = getOrSet + StringUtils.capitalize(field.getName());
+        if (accessMethodRenaming.containsKey(methodName)) {
+            methodName = accessMethodRenaming.get(methodName);
+            if (methodName == null) {
+                return null;
+            }
+        }
+        switch (getOrSet) {
+            case GET:
+                method = clazz.getMethod(methodName);
+                break;
+            case SET:
+                method = clazz.getMethod(methodName, field.getType());
+                break;
+            default:
+                throw new IllegalArgumentException("Parameter 'getOrSet' must have value of 'get' or 'set'");
+        }
+        return method;
     }
 
     public Object getObjectToTest() {
@@ -90,124 +201,12 @@ public class FieldAccessTester {
 
     public FieldAccessTester run() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         List<Field> fields = Arrays.asList(objectToTest.getClass().getDeclaredFields());
-        if(testGetters){
+        if (testGetters) {
             testGetters(objectToTest, fields, accessMethodRenaming);
         }
-        if(testSetters){
+        if (testSetters) {
             testSetters(objectToTest, fields, accessMethodRenaming, nonInstantiableFieldsDefaultValues);
         }
         return this;
-    }
-
-   public static void testSetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming,
-                                   Map<String, Object> nonInstantiableFieldsDefaultValues)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        for(Field field : fields){
-            Method setter = getFieldAccessMethod(object.getClass(), SET, field, accessMethodRenaming);
-            if(setter == null) {
-                continue;
-            }
-            Object expectedValue = newInstanceOfField(field, nonInstantiableFieldsDefaultValues);
-            setter.invoke(object, expectedValue);
-            Object actualValue = getField(object, field);
-            assertEquals(actualValue, expectedValue);
-        }
-    }
-
-    public static void testGetters(Object object, List<Field> fields, Map<String, String> accessMethodRenaming)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        for(Field field : fields){
-            Object ExpectedValue = getField(object, field);
-            Method getter = getFieldAccessMethod(object.getClass(), GET, field, accessMethodRenaming);
-            if(getter == null) {
-                continue;
-            }
-            Object actualValue = getter.invoke(object);
-            assertEquals(ExpectedValue, actualValue);
-        }
-    }
-
-    private static Object newInstanceOfField(Field field, Map<String, Object> nonInstantiableFieldsDefaultValues)
-            throws IllegalAccessException, InstantiationException {
-        Object newInstance;
-        Class<?> fieldType = field.getType();
-        try{
-            newInstance = fieldType.newInstance();
-        } catch (InstantiationException e) {
-            newInstance = attemptDefaultFieldValue(fieldType.getTypeName(), nonInstantiableFieldsDefaultValues);
-            if(newInstance==null){
-                throw e;
-            }
-        }
-
-        return newInstance;
-    }
-
-    private static Object attemptDefaultFieldValue(String typeName, Map<String, Object> nonInstantiableFieldsDefaultValues) {
-        Object newInstance;
-        switch (typeName){
-            case "boolean":
-                newInstance = false;
-                break;
-            case "byte":
-                newInstance = 0;
-                break;
-            case "char":
-                newInstance = '\u0000';
-                break;
-            case "double":
-                newInstance = 0.0d;
-                break;
-            case "float":
-                newInstance = 0.0f;
-                break;
-            case "int":
-                newInstance = 0;
-                break;
-            case "long":
-                newInstance = 0L;
-                break;
-            case "short":
-                newInstance = 0;
-                break;
-            default:
-                newInstance = nonInstantiableFieldsDefaultValues.get(typeName);
-        }
-        return newInstance;
-    }
-
-    private static Object getField(Object object, Field field) throws IllegalAccessException {
-        Object returnVal;
-        if(field.isAccessible()){
-            returnVal = field.get(object);
-        }
-        else {
-            field.setAccessible(true);
-            returnVal = field.get(object);
-            field.setAccessible(false);
-        }
-        return returnVal;
-    }
-
-    private static Method getFieldAccessMethod(Class clazz, String getOrSet, Field field, Map<String, String> accessMethodRenaming) throws NoSuchMethodException {
-        Method method;
-        String methodName = getOrSet + StringUtils.capitalize(field.getName());
-        if(accessMethodRenaming.containsKey(methodName)){
-            methodName = accessMethodRenaming.get(methodName);
-            if(methodName == null){
-                return null;
-            }
-        }
-        switch (getOrSet){
-            case GET:
-                method = clazz.getMethod(methodName);
-                break;
-            case SET:
-                method = clazz.getMethod(methodName, field.getType());
-                break;
-            default:
-                throw new IllegalArgumentException("Second parameter 'getOrSet' must have value of 'get' or 'set'");
-        }
-        return method;
     }
 }
