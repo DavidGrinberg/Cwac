@@ -2,7 +2,6 @@ package com.cwac.mongoDocs;
 
 import com.cwac.testing.util.DataGenerator;
 import com.cwac.testing.util.FieldAccessTester;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
