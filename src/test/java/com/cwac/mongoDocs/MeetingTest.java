@@ -4,9 +4,11 @@ import com.cwac.testing.util.DataGenerator;
 import com.cwac.testing.util.FieldAccessTester;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 /**
@@ -51,9 +53,7 @@ public class MeetingTest {
         newAttendeeUsernames.add(secondUser.getUsername());
         assertEquals(newAttendeeUsernames, meeting.getAttendeeUsernames());
 
-        Set<User> users = Stream.generate(DataGenerator::createRandomUser)
-                .limit(new Random().nextInt(10)+1)//to avoid 0
-                .collect(Collectors.toSet());
+        Set<User> users = DataGenerator.createRandomUsers(10);
         Set<String> usernames = users.parallelStream().map(User::getUsername).collect(Collectors.toSet());
         meeting.setAttendees(users);
         assertEquals(meeting.getAttendeeUsernames(), usernames);

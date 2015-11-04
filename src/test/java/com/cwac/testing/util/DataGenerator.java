@@ -19,11 +19,21 @@ public class DataGenerator {
                 RandomStringUtils.randomAlphabetic(random.nextInt(10)));
     }
 
+    public static Set<User> createRandomUsers(int number) {
+        return Stream.generate(DataGenerator::createRandomUser)
+                .limit(random.nextInt(number) + 1)//to avoid 0
+                .collect(Collectors.toSet());
+    }
+
     public static Meeting createRandomMeeting(){
-        Set<User> users = Stream.generate(DataGenerator::createRandomUser)
-                                .limit(random.nextInt(10)+1)//to avoid 0
-                                .collect(Collectors.toSet());
+        Set<User> users = createRandomUsers(10);
 
         return new Meeting(users, RandomStringUtils.randomAlphabetic(random.nextInt(10)));
+    }
+
+    public static Set<Meeting> createRandomMeetings(int number) {
+        return Stream.generate(DataGenerator::createRandomMeeting)
+                .limit(random.nextInt(number) + 1)//to avoid 0
+                .collect(Collectors.toSet());
     }
 }
