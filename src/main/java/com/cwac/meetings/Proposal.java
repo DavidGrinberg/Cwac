@@ -4,21 +4,21 @@ import com.cwac.mongoDocs.FailedMatch;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by David on 11/3/2015.
  */
 public class Proposal {
-    public final List<Meeting> meetings;
-    public final List<User> users;
-    public final List<FailedMatch> failedUsers;
+    public final Set<Meeting> meetings;
+    public final Set<User> users;
+    public final Set<FailedMatch> failedMatches;
 
-    public Proposal(List<Meeting> meetings, List<User> users) {
+    public Proposal(Set<Meeting> meetings, Set<User> users) {
         this.meetings = meetings;
         this.users = users;
-        this.failedUsers = users.parallelStream().filter(user -> !user.hasFoundMeeting())
-                .map(FailedMatch::new).collect(Collectors.toList());
+        this.failedMatches = users.parallelStream().filter(user -> !user.hasFoundMeeting())
+                .map(FailedMatch::new).collect(Collectors.toSet());
     }
 }

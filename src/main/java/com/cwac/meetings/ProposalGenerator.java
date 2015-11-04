@@ -21,8 +21,8 @@ public class ProposalGenerator {
     }
 
     public static Proposal proposeMeetings(List<String> locations, Datastore cwacDatabase) {
-        List<Meeting>   paired = new ArrayList<>();
-        List<User>      unpaired = new ArrayList<>();
+        Set<Meeting> paired = new HashSet<>();
+        Set<User> unpaired = new HashSet<>();
 
         for(String location : locations){
             Proposal proposal = proposeMeetingsAtLocation(location, cwacDatabase);
@@ -41,7 +41,7 @@ public class ProposalGenerator {
                         .field("location").equal(location)
                         .field("isActive").equal(true)
                         .asList();
-        List<Meeting> pairings = new ArrayList<>(activeUsersAtLocation.size() / 2);
+        Set<Meeting> pairings = new HashSet<>(activeUsersAtLocation.size() / 2);
         Collections.shuffle(activeUsersAtLocation);
 
         ListIterator<User>  leftIter = activeUsersAtLocation.listIterator();
@@ -64,6 +64,6 @@ public class ProposalGenerator {
             }
         }
 
-        return new Proposal(pairings, activeUsersAtLocation);
+        return new Proposal(pairings, new HashSet<>(activeUsersAtLocation));
     }
 }

@@ -34,7 +34,7 @@ public class MockDataGenerator {
 
         List<Meeting> meetings = createRandomHistories(users, locations);
 
-        return new Proposal(meetings, users);
+        return new Proposal(new HashSet<>(meetings), new HashSet<>(users));
     }
 
     private static List<Meeting> createRandomHistories(List<User> users, List<String> locations) {
