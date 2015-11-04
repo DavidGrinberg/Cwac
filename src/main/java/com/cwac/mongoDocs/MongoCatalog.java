@@ -1,4 +1,4 @@
-package com.cwac;
+package com.cwac.mongoDocs;
 
 /**
  * Created by David on 10/26/2015.
