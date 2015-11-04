@@ -1,7 +1,8 @@
 package com.cwac.poc;
 
+import com.cwac.meetings.Proposal;
 import com.cwac.meetings.ProposalGenerator;
-import com.cwac.MongoCatalog;
+import com.cwac.mongoDocs.MongoCatalog;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.AdvancedDatastore;
@@ -20,7 +21,7 @@ public class CwacDemoApp {
         while(!createdUsers){
             try {
                 cwacDb.getDB().dropDatabase();
-                ProposalGenerator.Proposal proposal = MockDataGenerator.createData();
+                Proposal proposal = MockDataGenerator.createData();
                 cwacDb.save(proposal.meetings);
                 cwacDb.save(proposal.users);
                 cwacDb.save("FailedUsedTest", proposal.users);

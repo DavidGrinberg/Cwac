@@ -1,6 +1,6 @@
 package com.cwac.poc;
 
-import com.cwac.meetings.ProposalGenerator;
+import com.cwac.meetings.Proposal;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -24,7 +24,7 @@ public class MockDataGenerator {
         USERNAME_LENGTH = 6;
     private static final double DEACTIVATED_CHANCE = .3;
 
-    public static ProposalGenerator.Proposal createData() {
+    public static Proposal createData() {
         List<String> locations = Stream.generate(() -> RandomStringUtils.randomAlphabetic(LOCATION_LENGTH).toLowerCase())
                 .limit(NUM_LOCATIONS).collect(Collectors.toList());
         List<User> users= Stream.generate(() -> new User(RandomStringUtils.randomAlphabetic(USERNAME_LENGTH).toLowerCase(),
@@ -34,7 +34,7 @@ public class MockDataGenerator {
 
         List<Meeting> meetings = createRandomHistories(users, locations);
 
-        return new ProposalGenerator.Proposal(meetings, users);
+        return new Proposal(meetings, users);
     }
 
     private static List<Meeting> createRandomHistories(List<User> users, List<String> locations) {

@@ -1,10 +1,10 @@
 package com.cwac.meetings;
 
-import com.cwac.mongoDocs.*;
+import com.cwac.mongoDocs.Meeting;
+import com.cwac.mongoDocs.User;
 import org.mongodb.morphia.Datastore;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
@@ -36,7 +36,11 @@ public class ProposalGenerator {
     }
 
     public static Proposal proposeMeetingsAtLocation(String location, Datastore cwacDatabase) {
-        List<User> activeUsersAtLocation = cwacDatabase.find(User.class).field("location").equal(location).field("isActive").equal(true).asList();
+        List<User> activeUsersAtLocation =
+                cwacDatabase.find(User.class)
+                        .field("location").equal(location)
+                        .field("isActive").equal(true)
+                        .asList();
         List<Meeting> pairings = new ArrayList<>(activeUsersAtLocation.size() / 2);
         Collections.shuffle(activeUsersAtLocation);
 
@@ -61,18 +65,5 @@ public class ProposalGenerator {
         }
 
         return new Proposal(pairings, activeUsersAtLocation);
-    }
-
-    public static class Proposal {
-        public final List<Meeting> meetings;
-        public final List<User> users;
-        public final List<FailedMatch> failedUsers;
-
-        public Proposal(List<Meeting> meetings, List<User> users) {
-            this.meetings = meetings;
-            this.users = users;
-            this.failedUsers = users.parallelStream().filter(user -> !user.hasFoundMeeting())
-                    .map(FailedMatch::new).collect(Collectors.toList());
-        }
     }
 }
