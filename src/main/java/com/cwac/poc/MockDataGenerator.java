@@ -1,9 +1,9 @@
 package com.cwac.poc;
 
-import com.cwac.meetings.Proposal;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.mongodb.morphia.AdvancedDatastore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class MockDataGenerator {
         USERNAME_LENGTH = 6;
     private static final double DEACTIVATED_CHANCE = .3;
 
-    public static Proposal createData() {
+    public static void createDataIn(AdvancedDatastore cwacDb) {
         List<String> locations = Stream.generate(() -> RandomStringUtils.randomAlphabetic(LOCATION_LENGTH).toLowerCase())
                 .limit(NUM_LOCATIONS).collect(Collectors.toList());
         List<User> users= Stream.generate(() -> new User(RandomStringUtils.randomAlphabetic(USERNAME_LENGTH).toLowerCase(),
@@ -34,7 +34,8 @@ public class MockDataGenerator {
 
         List<Meeting> meetings = createRandomHistories(users, locations);
 
-        return new Proposal(new HashSet<>(meetings), new HashSet<>(users));
+        cwacDb.insert(users.toArray());
+        cwacDb.insert(meetings.toArray());
     }
 
     private static List<Meeting> createRandomHistories(List<User> users, List<String> locations) {

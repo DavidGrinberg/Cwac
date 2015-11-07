@@ -1,43 +1,41 @@
 package com.cwac.meetings;
 
+import com.cwac.mongoDocs.FailedMatch;
 import com.cwac.mongoDocs.Meeting;
 import com.cwac.mongoDocs.User;
 import org.mongodb.morphia.Datastore;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by David on 10/24/2015.
  */
 public class ProposalGenerator {
-    public static Proposal generate(Datastore cwacDatabase) {
-        List<String> locations = cwacDatabase.getCollection(User.class).distinct("location");
-        Proposal proposal = proposeMeetings(locations, cwacDatabase);
+    private final Datastore cwacDatastore;
 
-        cwacDatabase.save(proposal.meetings);
-        cwacDatabase.save(proposal.users);
-
-        return proposal;
+    public ProposalGenerator(Datastore cwacDatastore) {
+        this.cwacDatastore = cwacDatastore;
     }
 
-    public static Proposal proposeMeetings(List<String> locations, Datastore cwacDatabase) {
-        Set<Meeting> paired = new HashSet<>();
-        Set<User> unpaired = new HashSet<>();
+    public Proposal proposeMeetings() {
+        final List<String> locations = cwacDatastore.getCollection(User.class).distinct("location");
+        Set<Meeting> meetings = new HashSet<>();
+        Set<FailedMatch> failedMatches = new HashSet<>();
 
         for(String location : locations){
-            Proposal proposal = proposeMeetingsAtLocation(location, cwacDatabase);
+            Proposal proposal = proposeMeetingsAtLocation(location);
             System.out.println("Completed location " + location);
-            paired.addAll(proposal.meetings);
-            unpaired.addAll(proposal.users);
+            meetings.addAll(proposal.meetings);
+            failedMatches.addAll(proposal.failedMatches);
         }
 
-        //Can probably save to database here to reduce memory footprint, but not needed for now
-        return new Proposal(paired, unpaired);
+        return new Proposal(meetings, failedMatches);
     }
 
-    public static Proposal proposeMeetingsAtLocation(String location, Datastore cwacDatabase) {
+    public Proposal proposeMeetingsAtLocation(String location) {
         List<User> activeUsersAtLocation =
-                cwacDatabase.find(User.class)
+                cwacDatastore.find(User.class)
                         .field("location").equal(location)
                         .field("isActive").equal(true)
                         .asList();
@@ -64,6 +62,11 @@ public class ProposalGenerator {
             }
         }
 
-        return new Proposal(pairings, new HashSet<>(activeUsersAtLocation));
+        return new Proposal(pairings, extractFailedMatches(activeUsersAtLocation));
+    }
+
+    private Set<FailedMatch> extractFailedMatches(List<User> users) {
+        return users.parallelStream().filter(user -> !user.hasFoundMeeting())
+                .map(FailedMatch::new).collect(Collectors.toSet());
     }
 }
