@@ -52,17 +52,19 @@ public class ProposalGenerator {
             ListIterator<User> rightIter = activeUsersAtLocation.listIterator(leftIter.nextIndex());
             while(rightIter.hasNext()){
                 User secondUser = rightIter.next();
-                if(secondUser.hasFoundMeeting() || firstUser.hasMet(secondUser)){
-                    continue;
+                if (usersAreCompatible(firstUser, secondUser)) {
+                    Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(firstUser, secondUser)), location);
+                    pairings.add(meeting);
+                    break;
                 }
-
-                Meeting meeting = new Meeting(new HashSet<>(Arrays.asList(firstUser,secondUser)), location);
-                pairings.add(meeting);
-                break;
             }
         }
 
         return new Proposal(pairings, extractFailedMatches(activeUsersAtLocation));
+    }
+
+    private boolean usersAreCompatible(User firstUser, User secondUser) {
+        return !secondUser.hasFoundMeeting() && !firstUser.hasMet(secondUser);
     }
 
     private Set<FailedMatch> extractFailedMatches(List<User> users) {
