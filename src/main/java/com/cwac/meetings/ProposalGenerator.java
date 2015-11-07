@@ -23,12 +23,12 @@ public class ProposalGenerator {
         Set<Meeting> meetings = new HashSet<>();
         Set<FailedMatch> failedMatches = new HashSet<>();
 
-        for(String location : locations){
+        locations.parallelStream().forEach(location -> {
             Proposal proposal = proposeMeetingsAtLocation(location);
-            System.out.println("Completed location " + location);
             meetings.addAll(proposal.meetings);
             failedMatches.addAll(proposal.failedMatches);
-        }
+            System.out.println("Completed location " + location);
+        });
 
         return new Proposal(meetings, failedMatches);
     }
