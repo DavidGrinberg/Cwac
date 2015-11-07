@@ -2,6 +2,7 @@ package com.cwac.mongoDocs;
 
 /**
  * Created by David on 10/26/2015.
+ * Utility class just to store some common strings. There should not be any logic here. Perhaps move to config?
  */
 public class MongoCatalog {
     public static final class Databases{
