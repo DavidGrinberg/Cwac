@@ -19,6 +19,14 @@ public class FailedMatch {
             failureReason;
     private final Date failureDate;
 
+    //Used by Morphia, do not call
+    @Deprecated
+    public FailedMatch() {
+        id = new ObjectId();
+        username = location = failureReason = "";
+        failureDate = new Date();
+    }
+
     public FailedMatch(User user){
         this.id = new ObjectId();
         this.username = user.getUsername();
