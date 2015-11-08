@@ -23,15 +23,18 @@ public class Proposal {
     }
 
     public void acceptAndSave(AdvancedDatastore datastore) {
-        meetings.parallelStream().forEach(meeting -> {
+        meetings.stream().forEach(meeting -> {
             datastore.insert(meeting);
-            meeting.getAttendeeUsernames().parallelStream().forEach(username -> {
-                final Query<User> usernameQuery = datastore.createQuery(User.class).field(Mapper.ID_KEY).equal(username);
-                final UpdateOperations<User> addToMeetingToHistory =
-                        datastore.createUpdateOperations(User.class).add("history", meeting, false);
-                datastore.update(usernameQuery, addToMeetingToHistory);
-            });
+            meeting.getAttendeeUsernames().parallelStream()
+                    .forEach(username -> addMeetingToUserHistory(username, meeting, datastore));
         });
         datastore.insert(failedMatches.toArray());
+    }
+
+    private void addMeetingToUserHistory(String username, Meeting meeting, AdvancedDatastore datastore) {
+        final Query<User> usernameQuery = datastore.createQuery(User.class).field(Mapper.ID_KEY).equal(username);
+        final UpdateOperations<User> addToMeetingToHistory =
+                datastore.createUpdateOperations(User.class).add("history", meeting, false);
+        datastore.update(usernameQuery, addToMeetingToHistory);
     }
 }
