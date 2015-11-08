@@ -6,7 +6,6 @@ import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Version;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,14 +15,14 @@ import java.util.stream.Collectors;
  */
 @Entity("Meetings")
 public class Meeting {
+    @Version
+    long version;
     @Id
     private ObjectId id;
     private Set<String> attendeeUsernames;
     private String location;
     private boolean occurred;
     private Date creationDate;
-    @Version
-    long version;
 
     //Used by Morphia, do not call
     public Meeting(){}
@@ -35,6 +34,22 @@ public class Meeting {
         this.occurred = true;
         this.creationDate = new Date();
         updateAttendees(attendees);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Meeting meeting = (Meeting) o;
+
+        return id.equals(meeting.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     private void updateAttendees(Set<User> attendees) {

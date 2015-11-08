@@ -1,7 +1,10 @@
 package com.cwac.mongoDocs;
 
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.*;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Transient;
+import org.mongodb.morphia.annotations.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +17,10 @@ import java.util.List;
  */
 @Entity("Users")
 public class User {
+    @Transient
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Version
+    long version;
     @Id
     private String  username;
     private String  location;
@@ -23,10 +30,6 @@ public class User {
     private boolean foundMeeting = false;
     @Transient
     private String failureReason = "";
-    @Version
-    long version;
-    @Transient
-    final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     //Should not be called, only used by Morphia for data translation
     public User(){}
@@ -102,5 +105,21 @@ public class User {
 
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return username.equals(user.username);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return username.hashCode();
     }
 }
