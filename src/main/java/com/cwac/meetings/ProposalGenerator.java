@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  */
 public class ProposalGenerator {
     private final Datastore cwacDatastore;
+    public Randomizer randomizer = new UserCollectionRandomizer();
 
     public ProposalGenerator(Datastore cwacDatastore) {
         this.cwacDatastore = cwacDatastore;
@@ -40,7 +41,7 @@ public class ProposalGenerator {
                         .field("isActive").equal(true)
                         .asList();
         Set<Meeting> pairings = new HashSet<>(activeUsersAtLocation.size() / 2);
-        Collections.shuffle(activeUsersAtLocation);
+        randomizer.randomize(activeUsersAtLocation);
 
         ListIterator<User>  leftIter = activeUsersAtLocation.listIterator();
         while(leftIter.hasNext()){
